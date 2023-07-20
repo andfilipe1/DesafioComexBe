@@ -75,7 +75,7 @@ namespace RestCountries.Application.Services
 
             if (!adjacencyList.ContainsKey(endCountry))
             {
-                throw new ArgumentException("O país de destino não existe no conjunto de dados.");
+                throw new ArgumentException("The destination country does not exist in the dataset.");
             }
 
             var predecessorMap = BFS(adjacencyList, startCountry, endCountry);
@@ -149,13 +149,10 @@ namespace RestCountries.Application.Services
                 }
                 catch (Exception ex)
                 {
-                    // Lidar com a exceção aqui, seja imprimindo uma mensagem de erro, registrando o erro ou realizando alguma ação adequada.
-                    Console.WriteLine($"Erro durante a busca em largura (BFS): {ex.Message}");
+                    Console.WriteLine($"Error during breadth-first search (BFS): {ex.Message}");
                 }
             }
 
-
-            // Não encontramos o final, então retornamos nulo.
             return null;
         }
         private async Task<List<Country>> GetNeighbouringCountries(Country country)

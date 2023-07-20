@@ -21,7 +21,6 @@ namespace RestCountries.Api.Controllers
             return Ok(route);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> GetAllCountries()
         {

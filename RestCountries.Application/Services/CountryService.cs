@@ -1,82 +1,76 @@
 ﻿using RestCountries.Application.Interfaces;
 using RestCountries.Domain.Interfaces;
+using System.Xml.Linq;
 
 namespace RestCountries.Application.Services
 {
     public class CountryService : ICountryService
     {
-        private readonly ICountryRepository _countryRepository;
         private readonly ICountryCache _countryCache;
         private readonly IRestCountriesApiClient _restCountriesApiClient;
 
-        public CountryService(ICountryRepository countryRepository, ICountryCache countryCache, IRestCountriesApiClient restCountriesApiClient)
+        public CountryService(ICountryCache countryCache, IRestCountriesApiClient restCountriesApiClient)
         {
-            _countryRepository = countryRepository;
             _countryCache = countryCache;
             _restCountriesApiClient = restCountriesApiClient;
         }
 
         public async Task<List<Country>> GetAllCountries()
         {
-            //var countries = await _countryCache.GetCountriesFromCache();
+            var countries = await _restCountriesApiClient.GetRestCountriesAll();
 
-            //if (countries == null)
-            //{
-               var countries = await _restCountriesApiClient.GetRestCountriesAll();
-
-                //if (countries != null)
-                //{
-                //    await _countryCache.CacheCountries(countries);
-                //}
-            //}
+            if (countries != null)
+            {
+                await _countryCache.SetCountriesInCache(countries);
+            }
             return countries;
         }
 
         public async Task<List<Country>> GetCountryByName(string name)
         {
-            //var countries = await _countryCache.GetCountriesFromCache();
+            var countries = await _countryCache.GetCountriesFromCacheByName(name);
 
-            //if (countries == null)
-            //{
-            var countries = await _restCountriesApiClient.GetRestCountriesByName(name);
+            if (countries == null)
+            {
+                countries = await _restCountriesApiClient.GetRestCountriesByName(name);
+                if (countries != null)
+                {
+                    await _countryCache.SetCountriesInCache(countries);
+                }
 
-            //if (countries != null)
-            //{
-            //    await _countryCache.CacheCountries(countries);
-            //}
-            //}
+            }
             return countries;
         }
 
         public async Task<List<Country>> GetCountryByCode(string code)
         {
-            //var countries = await _countryCache.GetCountriesFromCache();
+            var countries = await _countryCache.GetCountriesFromCacheByCode(code);
 
-            //if (countries == null)
-            //{
-            var countries = await _restCountriesApiClient.GetRestCountriesByCode(code);
+            if (countries == null)
+            {
+                countries = await _restCountriesApiClient.GetRestCountriesByCode(code);
 
-            //if (countries != null)
-            //{
-            //    await _countryCache.CacheCountries(countries);
-            //}
-            //}
+                if (countries != null)
+                {
+                    await _countryCache.SetCountriesInCache(countries);
+                }
+            }
             return countries;
         }
 
         public async Task<List<Country>> GetCountriesByCurrency(string currency)
         {
-            //var countries = await _countryCache.GetCountriesFromCache();
+            var countries = await _countryCache.GetCountriesFromCacheByCurrency(currency);
 
-            //if (countries == null)
-            //{
-            var countries = await _restCountriesApiClient.GetRestCountriesByCurrency(currency);
+            if (countries == null)
+            {
+                countries = await _restCountriesApiClient.GetRestCountriesByCurrency(currency);
+                if (countries != null)
+                {
+                    await _countryCache.SetCountriesInCache(countries);
+                }
 
-            //if (countries != null)
-            //{
-            //    await _countryCache.CacheCountries(countries);
-            //}
-            //}
+            }
             return countries;
         }
 

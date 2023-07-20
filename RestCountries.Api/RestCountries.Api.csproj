@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Restcountries.Classes\Restcountries.Domain.csproj" />
+    <ProjectReference Include="..\RestCountries.CrossCutting.IoC\RestCountries.CrossCutting.IoC.csproj" />
     <ProjectReference Include="..\Restcountries.Integration\RestCountries.Infrastructure.csproj" />
   </ItemGroup>
 

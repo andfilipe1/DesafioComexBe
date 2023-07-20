@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
@@ -10,40 +11,10 @@ namespace RestCountries.Infrastructure.Caching
     {
         private readonly IDistributedCache _distributedCache;
         private const string CacheKeyPrefix = "Country:";
-        private const string CacheCurrencysKey = "Currencys";
-        private const string CacheCodeKey = "Code";
 
         public CountryCache(IDistributedCache distributedCache)
         {
             _distributedCache = distributedCache;
-        }
-
-        public async Task<Country> GetCountryByName(string name)
-        {
-            var cacheKey = $"{CacheKeyPrefix}{name}";
-            var countryJson = await _distributedCache.GetStringAsync(cacheKey);
-            if (countryJson != null)
-            {
-                var country = JsonSerializer.Deserialize<Country>(countryJson);
-                return country;
-            }
-            return null;
-        }
-
-        public async Task SetCountryByName(string name, Country country, TimeSpan expiration)
-        {
-            var cacheKey = $"{CacheKeyPrefix}{name}";
-            var countryJson = JsonSerializer.Serialize(country);
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = expiration
-            };
-            await _distributedCache.SetStringAsync(cacheKey, countryJson, options);
-        }
-
-        public Task CacheCountries(List<Country> countries)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<List<Country>> GetCountriesFromCache()
@@ -59,5 +30,46 @@ namespace RestCountries.Infrastructure.Caching
             return null;
         }
 
+        public async Task<List<Country>> GetCountriesFromCacheByName(string name)
+        {
+            var allCountries = await GetCountriesFromCache();
+
+            if (allCountries != null)
+            {
+                var filteredCountries = allCountries.Where(c => c.name.common.Equals(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                return filteredCountries;
+            }
+
+            return null;
+        }
+        public async Task<List<Country>> GetCountriesFromCacheByCurrency(string currency)
+        {
+            var allCountries = await GetCountriesFromCache();
+
+            if (allCountries != null)
+            {
+                var filteredCountries = allCountries.Where(c => c.currencies != null && c.currencies.ContainsKey(currency)).ToList();
+                return filteredCountries;
+            }
+
+            return null;
+        }
+        public async Task<List<Country>> GetCountriesFromCacheByCode(string code)
+        {
+            var allCountries = await GetCountriesFromCache();
+
+            if (allCountries != null)
+            {
+                var filteredCountries = allCountries.Where(c => c.cca3.Equals(code, StringComparison.OrdinalIgnoreCase)).ToList();
+                return filteredCountries;
+            }
+
+            return null;
+        }
+        public async Task SetCountriesInCache(List<Country> countries)
+        {
+            var jsonString = JsonSerializer.Serialize(countries);
+            await _distributedCache.SetStringAsync(CacheKeyPrefix, jsonString);
+        }
     }
 }

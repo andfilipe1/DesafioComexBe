@@ -27,51 +27,39 @@ namespace RestCountries.Infrastructure.ExternalServices
         public async Task<List<Country>> GetRestCountriesAll()
         {
             var apiUrl = $"{_apiBaseUrl}/v3.1/all";
-
-            return await _retryPolicy.ExecuteAsync(async () =>
-            {
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                response.EnsureSuccessStatusCode();
-
-                var content = await response.Content.ReadAsStringAsync();
-                var countries = JsonConvert.DeserializeObject<List<Country>>(content);
-
-                return countries;
-            });
+            return await GetHttpClient(apiUrl);
         }
         public async Task<List<Country>> GetRestCountriesByName(string name)
         {
             var apiUrl = $"{_apiBaseUrl}/v3.1/name/{name}?fullText=true";
-            var response = await _httpClient.GetAsync(apiUrl);
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            var countries = JsonSerializer.Deserialize<List<Country>>(content);
-            return countries;
+            return await GetHttpClient(apiUrl);
         }
+
         public async Task<List<Country>> GetRestCountriesByCode(string code)
         {
             var apiUrl = $"{_apiBaseUrl}/v3.1/alpha?codes={code}";
+            return await GetHttpClient(apiUrl);
+        }
 
-            var countries = await _retryPolicy.ExecuteAsync(async () =>
+        public async Task<List<Country>> GetRestCountriesByCurrency(string currency)
+        {
+            var apiUrl = $"{_apiBaseUrl}/v3.1/currency/{currency}";
+            return await GetHttpClient(apiUrl);
+        }
+
+
+        private async Task<List<Country>> GetHttpClient(string apiUrl)
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var response = await _httpClient.GetAsync(apiUrl);
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
-                var deserializedCountries = JsonSerializer.Deserialize<List<Country>>(content);
-                return deserializedCountries ?? throw new InvalidOperationException("Deserialization returned null.");
+                var countries = JsonConvert.DeserializeObject<List<Country>>(content);
+                return countries;
             });
+        }
 
-            return countries ?? new List<Country>();  
-        }
-        public async Task<List<Country>> GetRestCountriesByCurrency(string currency)
-        {
-            var apiUrl = $"{_apiBaseUrl}/v3.1/currency/{currency}";
-            var response = await _httpClient.GetAsync(apiUrl);
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            var countries = JsonSerializer.Deserialize<List<Country>>(content);
-            return countries;
-        }
+
     }
 }

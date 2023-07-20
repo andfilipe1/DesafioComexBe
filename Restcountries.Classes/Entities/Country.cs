@@ -21,5 +21,7 @@ public class Country
     public string flag { get; set; }
     public List<string> timezones { get; set; }
     public List<string> continents { get; set; }
+    public string cca3 { get; set; }
+
 }
 

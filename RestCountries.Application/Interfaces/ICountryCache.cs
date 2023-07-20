@@ -5,9 +5,10 @@ namespace RestCountries.Application.Interfaces
 {
     public interface ICountryCache
     {
-        Task CacheCountries(List<Country> countries);
         Task<List<Country>> GetCountriesFromCache();
-        Task<Country> GetCountryByName(string name);
-        Task SetCountryByName(string name, Country country, TimeSpan expiration);
+        Task<List<Country>> GetCountriesFromCacheByCode(string code);
+        Task<List<Country>> GetCountriesFromCacheByCurrency(string currency);
+        Task<List<Country>> GetCountriesFromCacheByName(string name);
+        Task SetCountriesInCache(List<Country> countries);
     }
 }

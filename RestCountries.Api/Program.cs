@@ -1,11 +1,4 @@
 using Microsoft.OpenApi.Models;
-using RestCountries.Application.Interfaces;
-using RestCountries.Application.Services;
-using RestCountries.Domain.Interfaces;
-using RestCountries.Infrastructure.Caching;
-using RestCountries.Infrastructure.ExternalServices;
-using RestCountries.Infrastructure.Repositories;
-using StackExchange.Redis;
 
 namespace RestCountries.Api
 {
@@ -14,7 +7,6 @@ namespace RestCountries.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
 
             // Configure Swagger
             builder.Services.AddSwaggerGen(c =>
@@ -25,24 +17,13 @@ namespace RestCountries.Api
             // Add services to the container.
             builder.Services.AddControllers();
 
-
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(builder.Environment.ContentRootPath)
                 .AddJsonFile("appsettings.json")
                 .Build();
 
             // Configure dependency injection
-            builder.Services.AddScoped<ICountryService, CountryService>();
-            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")));
-            builder.Services.AddScoped<ICountryCache, CountryCache>();
-            builder.Services.AddScoped<ICountryRepository, CountryRepository>();
-            builder.Services.AddHttpClient<IRestCountriesApiClient, RestCountriesApiClient>();
-
-            builder.Services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = configuration.GetConnectionString("Redis");
-                options.InstanceName = "MyRedisInstance";
-            });
+            builder.Services.AddRestCountriesDependencies(configuration);
 
             var app = builder.Build();
 

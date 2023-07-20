@@ -1,6 +1,5 @@
 ﻿using RestCountries.Application.Interfaces;
 using RestCountries.Domain.Interfaces;
-using System.Xml.Linq;
 
 namespace RestCountries.Application.Services
 {
@@ -18,14 +17,9 @@ namespace RestCountries.Application.Services
         public async Task<List<Country>> GetAllCountries()
         {
             var countries = await _restCountriesApiClient.GetRestCountriesAll();
-
-            if (countries != null)
-            {
-                await _countryCache.SetCountriesInCache(countries);
-            }
+            await SetIDatanCache(countries);
             return countries;
         }
-
         public async Task<List<Country>> GetCountryByName(string name)
         {
             var countries = await _countryCache.GetCountriesFromCacheByName(name);
@@ -33,15 +27,10 @@ namespace RestCountries.Application.Services
             if (countries == null)
             {
                 countries = await _restCountriesApiClient.GetRestCountriesByName(name);
-                if (countries != null)
-                {
-                    await _countryCache.SetCountriesInCache(countries);
-                }
-
+                await SetIDatanCache(countries);
             }
             return countries;
         }
-
         public async Task<List<Country>> GetCountryByCode(string code)
         {
             var countries = await _countryCache.GetCountriesFromCacheByCode(code);
@@ -49,15 +38,10 @@ namespace RestCountries.Application.Services
             if (countries == null)
             {
                 countries = await _restCountriesApiClient.GetRestCountriesByCode(code);
-
-                if (countries != null)
-                {
-                    await _countryCache.SetCountriesInCache(countries);
-                }
+                await SetIDatanCache(countries);
             }
             return countries;
-        }
-
+        } 
         public async Task<List<Country>> GetCountriesByCurrency(string currency)
         {
             var countries = await _countryCache.GetCountriesFromCacheByCurrency(currency);
@@ -73,7 +57,6 @@ namespace RestCountries.Application.Services
             }
             return countries;
         }
-
         public async Task<List<Country>> GetTradeRoute(string countryA, string countryB)
         {
             var allCountries = await _restCountriesApiClient.GetRestCountriesAll();
@@ -121,6 +104,14 @@ namespace RestCountries.Application.Services
             return path;
         }
 
+        #region private methods
+        private async Task SetIDatanCache(List<Country>? countries)
+        {
+            if (countries != null)
+            {
+                await _countryCache.SetCountriesInCache(countries);
+            }
+        }
         private Dictionary<Country, Country> BFS(Dictionary<Country, List<Country>> adjacencyList, Country start, Country end)
         {
             var queue = new Queue<Country>();
@@ -167,7 +158,6 @@ namespace RestCountries.Application.Services
             // Não encontramos o final, então retornamos nulo.
             return null;
         }
-
         private async Task<List<Country>> GetNeighbouringCountries(Country country)
         {
             var neighbouringCountriesCodes = country.borders;
@@ -185,6 +175,6 @@ namespace RestCountries.Application.Services
             }
             return neighbouringCountries;
         }
-
+        #endregion
     }
 }

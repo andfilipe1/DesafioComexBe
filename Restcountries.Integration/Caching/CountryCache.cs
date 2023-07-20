@@ -23,12 +23,12 @@ namespace RestCountries.Infrastructure.Caching
 
             if (countriesObject != null)
             {
-                var countries = JsonSerializer.Deserialize<List<Country>>(countriesObject);
-                return countries;
+                return Deserialize(countriesObject);
             }
 
             return null;
         }
+
 
         public async Task<List<Country>> GetCountriesFromCacheByName(string name)
         {
@@ -71,5 +71,14 @@ namespace RestCountries.Infrastructure.Caching
             var jsonString = JsonSerializer.Serialize(countries);
             await _distributedCache.SetStringAsync(CacheKeyPrefix, jsonString);
         }
+
+        #region private methods
+        private static List<Country> Deserialize(string? countriesObject)
+        {
+            return JsonSerializer.Deserialize<List<Country>>(countriesObject);
+        }
+        #endregion
     }
+
+
 }

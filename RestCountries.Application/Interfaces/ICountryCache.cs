@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace RestCountries.Application.Interfaces
+﻿namespace RestCountries.Application.Interfaces
 {
     public interface ICountryCache
     {
